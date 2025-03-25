@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Medication Administration</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+<h1>Active Medication Requests</h1>
+<table>
+    <tr>
+        <th>Patient</th>
+        <th>Medication</th>
+        <th>Dosage</th>
+        <th>Timing</th>
+        <th>Action</th>
+    </tr>
+    <tr th:each="request : ${requests}">
+        <td th:text="${request.patient.givenName + ' ' + request.patient.familyName}"></td>
+        <td th:text="${request.medicationId}"></td> <!-- Replace with medication name if joined -->
+        <td th:text="${request.doseQuantity + ' ' + request.doseUnit}"></td>
+        <td th:text="${request.timingFrequency}"></td>
+        <td><a th:href="@{/med-admin/log/{id}(id=${request.id})}">Log Administration</a></td>
+    </tr>
+</table>
+</body>
+</html>

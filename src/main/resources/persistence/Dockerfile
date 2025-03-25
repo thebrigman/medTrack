@@ -1,0 +1,5 @@
+FROM postgres:14
+
+ENV POSTGRES_DB=fhir
+ENV POSTGRES_USER=user
+ENV POSTGRES_PASSWORD=password

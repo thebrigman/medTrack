@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Log Medication Administration</title>
+    <style>
+        form { max-width: 400px; margin: 20px; }
+        label { display: block; margin: 10px 0 5px; }
+        input, select { width: 100%; padding: 5px; }
+        button { margin-top: 10px; padding: 10px; }
+    </style>
+</head>
+<body>
+<h1>Log Medication Administration</h1>
+<form th:action="@{/med-admin/log}" th:object="${admin}" method="post">
+    <input type="hidden" th:field="*{request.id}" />
+    <input type="hidden" th:field="*{patient.id}" />
+    <input type="hidden" th:field="*{medicationId}" />
+
+    <label>Patient: <span th:text="${admin.patient.givenName + ' ' + admin.patient.familyName}"></span></label>
+    <label>Medication: <span th:text="${admin.medicationId}"></span></label> <!-- Replace with name if joined -->
+    <label>Dose Given:
+        <input type="number" th:field="*{doseQuantity}" step="0.1" required />
+    </label>
+    <label>Unit:
+        <input type="text" th:field="*{doseUnit}" required />
+    </label>
+    <label>Route:
+        <select th:field="*{route}">
+            <option value="oral">Oral</option>
+            <option value="intravenous">Intravenous</option>
+            <option value="intramuscular">Intramuscular</option>
+        </select>
+    </label>
+    <label>Performer ID (Nurse):
+        <input type="number" th:field="*{performerId}" />
+    </label>
+    <button type="submit">Log Administration</button>
+</form>
+</body>
+</html>
