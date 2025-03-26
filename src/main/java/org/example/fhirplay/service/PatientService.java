@@ -28,7 +28,7 @@ public class PatientService {
         this.patientRepository = patientRepository;
     }
 
-    public String getAllPatientsAsFHIR() {
+    public String getAllAsFHIR() {
         List<PatientEntity> patientEntities = patientRepository.findAll();
 
         // Create a FHIR Bundle
@@ -48,12 +48,12 @@ public class PatientService {
 
     }
 
-    public PatientEntity getPatientByFhirId(String fhirId) {
+    public PatientEntity getByFhirId(String fhirId) {
         Optional<PatientEntity> patient = patientRepository.findByFhirId(fhirId);
         return patient.orElseThrow(() -> new NoSuchElementException("No such patient with FhirId of " + fhirId + " found."));
     }
 
-    public String savePatient(String fhirPatientJson) {
+    public String save(String fhirPatientJson) {
         Patient fhirPatient = fhirContext.newJsonParser().parseResource(Patient.class, fhirPatientJson);
 
         PatientEntity patient = mapper.toPatientEntity(fhirPatient);
@@ -63,14 +63,14 @@ public class PatientService {
     }
 
     @Transactional
-    public String deletePatientByFhirId(String fhirId) {
+    public String deleteByFhirId(String fhirId) {
         Optional<PatientEntity> patient = patientRepository.findByFhirId(fhirId);
         patientRepository.deleteByFhirId(fhirId);
         return patient.orElseThrow(() -> new NoSuchElementException("No such patient with FhirId of " + fhirId + " found.")).getFhirJson();
     }
 
     @Transactional
-    public PatientEntity updatePatient(String fhirPatientJson) {
+    public PatientEntity update(String fhirPatientJson) {
         Patient updatedPatient = fhirContext.newJsonParser().parseResource(Patient.class, fhirPatientJson);
         Optional<PatientEntity> existingPatientOpt = patientRepository.findByFhirId(updatedPatient.getIdPart());
         PatientEntity existingPatient = existingPatientOpt.orElseThrow(() -> new NoSuchElementException("No such patient with FhirId of " + updatedPatient.getIdPart() + " found."));

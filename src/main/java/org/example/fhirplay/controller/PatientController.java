@@ -13,29 +13,27 @@ public class PatientController {
         this.patientService = patientService;
     }
 
-    @GetMapping("/patient")
-    public String getAllPatients() {
-        return patientService.getAllPatientsAsFHIR();
-    }
+    @GetMapping("/patients")
+    public String getAllPatients() {return patientService.getAllAsFHIR();}
 
     @PostMapping("/patient")
     public String savePatient(@RequestBody String patientJson) {
-        return patientService.savePatient(patientJson);
+        return patientService.save(patientJson);
     }
 
     @GetMapping("patient/{fhirId}")
     public String getByFhirId(@PathVariable String fhirId) {
-        return patientService.getPatientByFhirId(fhirId).getFhirJson();
+        return patientService.getByFhirId(fhirId).getFhirJson();
     }
 
     @DeleteMapping("/patient/{fhirId}")
     public String deleteByFhirId(@PathVariable String fhirId) {
-        return patientService.deletePatientByFhirId(fhirId);
+        return patientService.deleteByFhirId(fhirId);
     }
 
     @PutMapping("/patient")
     public String updatePatient(@RequestBody String json) {
-        return patientService.updatePatient(json).getFhirJson();
+        return patientService.update(json).getFhirJson();
     }
 }
 
