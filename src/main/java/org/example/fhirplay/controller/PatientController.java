@@ -22,9 +22,7 @@ public class PatientController {
     }
 
     @GetMapping("patient/{fhirId}")
-    public String getByFhirId(@PathVariable String fhirId) {
-        return patientService.getByFhirId(fhirId).getFhirJson();
-    }
+    public String getByFhirId(@PathVariable String fhirId) {return patientService.getByFhirId(fhirId);}
 
     @DeleteMapping("/patient/{fhirId}")
     public String deleteByFhirId(@PathVariable String fhirId) {

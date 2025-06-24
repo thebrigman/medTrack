@@ -1,5 +1,6 @@
 package org.example.fhirplay.service;
 
+import org.example.fhirplay.mapper.EnitiyToFhirResourceMapper;
 import org.example.fhirplay.mapper.FhirResourceToEntityMapper;
 import org.example.fhirplay.model.PatientEntity;
 import org.hl7.fhir.r4.model.*;
@@ -18,13 +19,15 @@ import java.util.Optional;
 public class PatientService {
 
     private final FhirContext fhirContext;
-    private final FhirResourceToEntityMapper mapper;
+    private final FhirResourceToEntityMapper toEntityMapper;
     private final PatientRepository patientRepository;
+    private final EnitiyToFhirResourceMapper toFhirResourceMapper;
 
     @Autowired
-    public PatientService(FhirResourceToEntityMapper mapper, PatientRepository patientRepository) {
+    public PatientService(FhirResourceToEntityMapper toEntityMapper, PatientRepository patientRepository, EnitiyToFhirResourceMapper toFhirResourceMapper) {
+        this.toFhirResourceMapper = toFhirResourceMapper;
         this.fhirContext = FhirContext.forR4();
-        this.mapper = mapper;
+        this.toEntityMapper = toEntityMapper;
         this.patientRepository = patientRepository;
     }
 
@@ -48,15 +51,17 @@ public class PatientService {
 
     }
 
-    public PatientEntity getByFhirId(String fhirId) {
-        Optional<PatientEntity> patient = patientRepository.findByFhirId(fhirId);
-        return patient.orElseThrow(() -> new NoSuchElementException("No such patient with FhirId of " + fhirId + " found."));
+    public String getByFhirId(String fhirId) {
+        Optional<PatientEntity> patientEntityOptional = patientRepository.findByFhirId(fhirId);
+        PatientEntity patientEntity =  patientEntityOptional.orElseThrow(() -> new NoSuchElementException("No such patient with FhirId of " + fhirId + " found."));
+        Patient patient = toFhirResourceMapper.toFhirPatient(patientEntity);
+        return fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient);
     }
 
     public String save(String fhirPatientJson) {
         Patient fhirPatient = fhirContext.newJsonParser().parseResource(Patient.class, fhirPatientJson);
 
-        PatientEntity patient = mapper.toPatientEntity(fhirPatient);
+        PatientEntity patient = toEntityMapper.toPatientEntity(fhirPatient);
 
         patientRepository.save(patient);
         return patient.getFhirJson();
@@ -75,6 +80,6 @@ public class PatientService {
         Optional<PatientEntity> existingPatientOpt = patientRepository.findByFhirId(updatedPatient.getIdPart());
         PatientEntity existingPatient = existingPatientOpt.orElseThrow(() -> new NoSuchElementException("No such patient with FhirId of " + updatedPatient.getIdPart() + " found."));
 
-        return patientRepository.save(mapper.setPatientFields(updatedPatient, existingPatient));
+        return patientRepository.save(toEntityMapper.setPatientFields(updatedPatient, existingPatient));
     }
 }
