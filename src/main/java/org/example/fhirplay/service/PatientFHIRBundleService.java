@@ -1,6 +1,7 @@
 package org.example.fhirplay.service;
 
 import ca.uhn.fhir.context.FhirContext;
+import org.example.fhirplay.mapper.EnitiyToFhirResourceMapper;
 import org.example.fhirplay.model.MedicationAdministrationEntity;
 import org.example.fhirplay.model.MedicationEntity;
 import org.example.fhirplay.model.MedicationRequestEntity;
@@ -24,17 +25,19 @@ public class PatientFHIRBundleService {
     private final MedicationAdministrationRepository medAdminRepository;
     private final MedicationRequestRepository medRequestRepository;
     private final MedicationRepository medicationRepository;
+    private final EnitiyToFhirResourceMapper toFhirResourceMapper;
 
     @Autowired
     public PatientFHIRBundleService(
             PatientRepository patientRepository,
             MedicationAdministrationRepository medAdminRepository,
             MedicationRequestRepository medRequestRepository,
-            MedicationRepository medicationRepository) {
+            MedicationRepository medicationRepository, EnitiyToFhirResourceMapper toFhirResourceMapper) {
         this.patientRepository = patientRepository;
         this.medAdminRepository = medAdminRepository;
         this.medRequestRepository = medRequestRepository;
         this.medicationRepository = medicationRepository;
+        this.toFhirResourceMapper = toFhirResourceMapper;
     }
 
     private static final FhirContext fhirContext = FhirContext.forR4();
@@ -46,7 +49,9 @@ public class PatientFHIRBundleService {
         // Fetch patient
         PatientEntity patientEntity = patientRepository.findByFhirId(patientFhirId)
                 .orElseThrow(() -> new IllegalArgumentException("Patient not found"));
-        Patient fhirPatient = fhirContext.newJsonParser().parseResource(Patient.class, patientEntity.getFhirJson());
+        Patient patient = toFhirResourceMapper.toFhirPatient(patientEntity);
+        String fhirJson = fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient);
+        Patient fhirPatient = fhirContext.newJsonParser().parseResource(Patient.class, fhirJson);
         bundle.addEntry().setResource(fhirPatient);
 
         // Fetch MedicationAdministrations for the patient

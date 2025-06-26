@@ -96,10 +96,6 @@ public class FhirResourceToEntityMapper {
                 }
             }
         }
-
-        entity.setFhirJson(fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(fhirPatient));
-
-
         return entity;
     }
 

@@ -11,8 +11,7 @@ INSERT INTO patient (
     city,
     postal_code,
     country,
-    phone_number,
-    fhir_json
+    phone_number
 ) VALUES
 -- Patient 1: John Doe
 (
@@ -26,8 +25,7 @@ INSERT INTO patient (
     'Boston',
     '02108',
     'USA',
-    '555-123-4567',
-    '{"resourceType": "Patient", "id": "pat1", "name": [{"given": ["John"], "family": "Doe"}], "gender": "male", "birthDate": "1980-05-15", "address": [{"line": ["123 Main St"], "city": "Boston", "postalCode": "02108", "country": "USA"}]}'
+    '555-123-4567'
 ),
 
 -- Patient 2: Jane Smith
@@ -42,8 +40,7 @@ INSERT INTO patient (
     'Seattle',
     '98101',
     'USA',
-    '555-987-6543',
-    '{"resourceType": "Patient", "id": "pat2", "name": [{"given": ["Jane"], "family": "Smith"}], "gender": "female", "birthDate": "1992-11-22", "address": [{"line": ["456 Elm St"], "city": "Seattle", "postalCode": "98101", "country": "USA"}]}'
+    '555-987-6543'
 ),
 
 -- Patient 3: Alex Patel
@@ -58,8 +55,7 @@ INSERT INTO patient (
     'Toronto',
     'M5V 2T6',
     'Canada',
-    '416-555-7890',
-    '{"resourceType": "Patient", "id": "pat3", "name": [{"given": ["Alex"], "family": "Patel"}], "gender": "other", "birthDate": "1975-03-10", "address": [{"line": ["789 Oak Ave"], "city": "Toronto", "postalCode": "M5V 2T6", "country": "Canada"}]}'
+    '416-555-7890'
 ),
 
 -- Patient 4: Maria Gonzalez
@@ -74,8 +70,7 @@ INSERT INTO patient (
     'Miami',
     '33101',
     'USA',
-    '305-555-3210',
-    '{"resourceType": "Patient", "id": "pat4", "name": [{"given": ["Maria"], "family": "Gonzalez"}], "gender": "female", "birthDate": "1968-08-30", "address": [{"line": ["321 Pine Rd"], "city": "Miami", "postalCode": "33101", "country": "USA"}]}'
+    '305-555-3210'
 ),
 
 -- Patient 5: Liam Chen
@@ -90,8 +85,7 @@ INSERT INTO patient (
     'Vancouver',
     'V6B 3M9',
     'Canada',
-    '604-555-6543',
-    '{"resourceType": "Patient", "id": "pat5", "name": [{"given": ["Liam"], "family": "Chen"}], "gender": "male", "birthDate": "2000-01-12", "address": [{"line": ["654 Birch Ln"], "city": "Vancouver", "postalCode": "V6B 3M9", "country": "Canada"}]}'
+    '604-555-6543'
 );
 
 INSERT INTO practitioner (

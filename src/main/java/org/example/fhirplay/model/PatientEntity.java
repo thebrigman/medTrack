@@ -52,8 +52,4 @@ public class PatientEntity {
 
     @Column(name = "phone_number")
     private String phoneNumber;
-
-    @Column(name = "fhir_json", columnDefinition = "TEXT", nullable = false)
-    private String fhirJson;
-
 }
