@@ -1,6 +1,7 @@
 package org.example.fhirplay.service;
 
 import ca.uhn.fhir.context.FhirContext;
+import org.example.fhirplay.mapper.EnitiyToFhirResourceMapper;
 import org.example.fhirplay.mapper.FhirResourceToEntityMapper;
 import org.example.fhirplay.model.PractitionerEntity;
 import org.example.fhirplay.repo.PractitionerRepository;
@@ -19,34 +20,37 @@ public class PractitionerService {
 
     private final FhirContext fhirContext;
     private final PractitionerRepository practitionerRepository;
-    private final FhirResourceToEntityMapper mapper;
+    private final FhirResourceToEntityMapper toEntityMapper;
+    private final EnitiyToFhirResourceMapper toFhirResourceMapper;
 
     @Autowired
-    public PractitionerService(PractitionerRepository practitionerRepository, FhirResourceToEntityMapper mapper) {
+    public PractitionerService(PractitionerRepository practitionerRepository, FhirResourceToEntityMapper toEntityMapper, EnitiyToFhirResourceMapper toFhirResourceMapper) {
+        this.toFhirResourceMapper = toFhirResourceMapper;
         this.fhirContext = FhirContext.forR4();
         this.practitionerRepository = practitionerRepository;
-        this.mapper = mapper;
+        this.toEntityMapper = toEntityMapper;
     }
 
-    public String savePractitioner(String fhirJson) {
+    public Practitioner savePractitioner(String fhirJson) {
         Practitioner fhirPractitioner = fhirContext.newJsonParser().parseResource(Practitioner.class, fhirJson);
 
         if (practitionerRepository.existsByFhirId(fhirPractitioner.getIdElement().getIdPart())) {
             throw new IllegalArgumentException("FHIR ID " + fhirPractitioner.getIdElement().getIdPart() + " already exists.");
         }
 
-        PractitionerEntity practitioner = mapper.toPractitionerEntity(fhirPractitioner);
-        practitionerRepository.save(practitioner);
+        PractitionerEntity entity = toEntityMapper.toPractitionerEntity(fhirPractitioner);
+        practitionerRepository.save(entity);
 
-        return practitioner.getFhirJson();
+        return toFhirResourceMapper.toFhirPractitioner(entity);
     }
 
-    public String getPractitionerByFhirId(String fhirId) {
-        Optional<PractitionerEntity> practitioner = practitionerRepository.findByFhirId(fhirId);
-        return practitioner.orElseThrow(() -> new NoSuchElementException("No such Practitioner with id of :" + fhirId)).getFhirJson();
+    public Practitioner getPractitionerByFhirId(String fhirId) {
+        Optional<PractitionerEntity> entityOptional = practitionerRepository.findByFhirId(fhirId);
+        PractitionerEntity entity = entityOptional.orElseThrow(() -> new NoSuchElementException("No such Practitioner with id of :" + fhirId));
+        return toFhirResourceMapper.toFhirPractitioner(entity);
     }
 
-    public String getAllPractitionersAsFHIR() {
+    public Bundle getAllPractitionersAsFHIR() {
         List<PractitionerEntity> practitionerEntities = practitionerRepository.findAll();
 
         // Create a FHIR Bundle
@@ -55,28 +59,30 @@ public class PractitionerService {
 
         // Add each Practitioner to the Bundle
         for (PractitionerEntity entity : practitionerEntities) {
-            if(entity.getFhirJson() != null) {
-                Practitioner practitioner = fhirContext.newJsonParser().parseResource(Practitioner.class, entity.getFhirJson());
-                bundle.addEntry().setResource(practitioner);
-            }
-
+            Practitioner practitioner = toFhirResourceMapper.toFhirPractitioner(entity);
+            bundle.addEntry().setResource(practitioner);
         }
 
         // Serialize the Bundle to JSON
-        return fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
+        return bundle;
     }
 
     @Transactional
-    public void deletePractitionerByFhirId(String fhirId) {
+    public Practitioner deletePractitionerByFhirId(String fhirId) {
+        Optional<PractitionerEntity> entityOptional = practitionerRepository.findByFhirId(fhirId);
+        PractitionerEntity entity = entityOptional.orElseThrow(() -> new NoSuchElementException("No such Practitioner with id of :" + fhirId + " found."));
+        Practitioner practitioner = toFhirResourceMapper.toFhirPractitioner(entity);
         practitionerRepository.deletePractitionerEntityByFhirId(fhirId);
+        return practitioner;
+
     }
 
     @Transactional
-    public PractitionerEntity updatePractitioner(String fhirJson) {
+    public Practitioner updatePractitioner(String fhirJson) {
         Practitioner updatedPractitioner = fhirContext.newJsonParser().parseResource(Practitioner.class, fhirJson);
         Optional<PractitionerEntity> practitionerEntityOptional = practitionerRepository.findByFhirId(updatedPractitioner.getIdPart());
         PractitionerEntity practitionerEntity = practitionerEntityOptional.orElseThrow(() -> new NoSuchElementException("No such Practitioner with id of :" + updatedPractitioner.getIdPart()));
-
-        return mapper.mapPractitionerFields(updatedPractitioner, practitionerEntity);
+        toEntityMapper.mapPractitionerFields(updatedPractitioner, practitionerEntity);
+        return toFhirResourceMapper.toFhirPractitioner(practitionerEntity);
     }
 }

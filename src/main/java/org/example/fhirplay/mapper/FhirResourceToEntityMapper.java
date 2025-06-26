@@ -153,9 +153,6 @@ public class FhirResourceToEntityMapper {
             }
         }
 
-        // Store full FHIR JSON
-        entity.setFhirJson(fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(fhirPractitioner));
-
         return entity;
     }
 

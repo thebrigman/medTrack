@@ -36,7 +36,4 @@ public class PractitionerEntity {
 
     @Column(name = "email")
     private String email;
-
-    @Column(name = "fhir_json", columnDefinition = "TEXT", nullable = false)
-    private String fhirJson;
 }

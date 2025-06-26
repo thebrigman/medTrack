@@ -1,6 +1,9 @@
 package org.example.fhirplay.controller;
 
+import ca.uhn.fhir.context.FhirContext;
 import org.example.fhirplay.service.PractitionerService;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Practitioner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -8,34 +11,55 @@ import org.springframework.web.bind.annotation.*;
 public class PractitionerController {
 
     private final PractitionerService practitionerService;
+    private final FhirContext fhirContext;
 
     @Autowired
-    public PractitionerController(PractitionerService practitionerService) {
+    public PractitionerController(PractitionerService practitionerService, FhirContext fhirContext) {
         this.practitionerService = practitionerService;
+        this.fhirContext = fhirContext;
     }
 
-    @PostMapping("/practitioner")
+    @PostMapping(
+            value = "/practitioner",
+            produces = "application/fhir+json"
+    )
     public String savePractitioner(@RequestBody String json) {
-        return practitionerService.savePractitioner(json);
+        Practitioner practitioner = practitionerService.savePractitioner(json);
+        return fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(practitioner);
     }
 
-    @GetMapping("/practitioner/{fhirId}")
+    @GetMapping(
+            value = "/practitioner/{fhirId}",
+            produces = "application/fhir+json")
     public String getPractitionerByFhirId(@PathVariable String fhirId) {
-        return practitionerService.getPractitionerByFhirId(fhirId);
+        Practitioner practitioner = practitionerService.getPractitionerByFhirId(fhirId);
+        return fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(practitioner);
     }
 
-    @GetMapping("/practitioner")
+    @GetMapping(
+            value = "/practitioner",
+            produces = "application/fhir+json"
+    )
     public String getAllPractitioners() {
-        return practitionerService.getAllPractitionersAsFHIR();
+        Bundle bundle = practitionerService.getAllPractitionersAsFHIR();
+        return fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
     }
 
-    @DeleteMapping("practitioner/{fhirId}")
-    public void deletePractitioner(@PathVariable String fhirId) {
-        practitionerService.deletePractitionerByFhirId(fhirId);
+    @DeleteMapping(
+            value = "practitioner/{fhirId}",
+            produces = "application/fhir+json"
+    )
+    public String deletePractitioner(@PathVariable String fhirId) {
+        Practitioner practitioner = practitionerService.deletePractitionerByFhirId(fhirId);
+        return fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(practitioner);
     }
 
-    @PutMapping("/practitioner")
+    @PutMapping(
+            value = "/practitioner",
+            produces = "application/fhir+json"
+    )
     public String updatePractitioner(@RequestBody String fhirJson) {
-        return practitionerService.updatePractitioner(fhirJson).getFhirJson();
+        Practitioner practitioner = practitionerService.updatePractitioner(fhirJson);
+        return fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(practitioner);
     }
 }

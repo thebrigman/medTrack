@@ -95,8 +95,7 @@ INSERT INTO practitioner (
     gender,
     qualification,
     phone_number,
-    email,
-    fhir_json
+    email
 ) VALUES
 -- Practitioner 1: Dr. Emily Carter (could prescribe Ibuprofen for John Doe)
 (
@@ -106,8 +105,7 @@ INSERT INTO practitioner (
     'female',
     'MD - General Practice',
     '555-0101',
-    'emily.carter@clinic.org',
-    '{"resourceType": "Practitioner", "id": "prac1", "name": [{"given": ["Emily"], "family": "Carter"}], "gender": "female", "qualification": [{"code": {"text": "MD - General Practice"}}], "telecom": [{"system": "phone", "value": "555-0101"}, {"system": "email", "value": "emily.carter@clinic.org"}]}'
+    'emily.carter@clinic.org'
 ),
 
 -- Practitioner 2: Dr. Michael Lee (could prescribe Amoxicillin for Jane Smith)
@@ -118,8 +116,7 @@ INSERT INTO practitioner (
     'male',
     'MD - Infectious Diseases',
     '555-0102',
-    'michael.lee@clinic.org',
-    '{"resourceType": "Practitioner", "id": "prac2", "name": [{"given": ["Michael"], "family": "Lee"}], "gender": "male", "qualification": [{"code": {"text": "MD - Infectious Diseases"}}], "telecom": [{"system": "phone", "value": "555-0102"}, {"system": "email", "value": "michael.lee@clinic.org"}]}'
+    'michael.lee@clinic.org'
 ),
 
 -- Practitioner 3: Dr. Sarah Patel (could prescribe Acetaminophen for Alex Patel)
@@ -130,8 +127,7 @@ INSERT INTO practitioner (
     'female',
     'MD - Family Medicine',
     '555-0103',
-    'sarah.patel@clinic.org',
-    '{"resourceType": "Practitioner", "id": "prac3", "name": [{"given": ["Sarah"], "family": "Patel"}], "gender": "female", "qualification": [{"code": {"text": "MD - Family Medicine"}}], "telecom": [{"system": "phone", "value": "555-0103"}, {"system": "email", "value": "sarah.patel@clinic.org"}]}'
+    'sarah.patel@clinic.org'
 ),
 
 -- Practitioner 4: Dr. James Nguyen (could prescribe Albuterol for Maria Gonzalez)
@@ -142,8 +138,7 @@ INSERT INTO practitioner (
     'male',
     'MD - Pulmonology',
     '555-0104',
-    'james.nguyen@clinic.org',
-    '{"resourceType": "Practitioner", "id": "prac4", "name": [{"given": ["James"], "family": "Nguyen"}], "gender": "male", "qualification": [{"code": {"text": "MD - Pulmonology"}}], "telecom": [{"system": "phone", "value": "555-0104"}, {"system": "email", "value": "james.nguyen@clinic.org"}]}'
+    'james.nguyen@clinic.org'
 ),
 
 -- Practitioner 5: Dr. Olivia Brown (could prescribe Lisinopril for Liam Chen)
@@ -154,8 +149,7 @@ INSERT INTO practitioner (
     'female',
     'MD - Cardiology',
     '555-0105',
-    'olivia.brown@clinic.org',
-    '{"resourceType": "Practitioner", "id": "prac5", "name": [{"given": ["Olivia"], "family": "Brown"}], "gender": "female", "qualification": [{"code": {"text": "MD - Cardiology"}}], "telecom": [{"system": "phone", "value": "555-0105"}, {"system": "email", "value": "olivia.brown@clinic.org"}]}'
+    'olivia.brown@clinic.org'
 );
 
 
