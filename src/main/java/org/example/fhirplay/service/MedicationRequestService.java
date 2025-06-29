@@ -1,6 +1,7 @@
 package org.example.fhirplay.service;
 
 import ca.uhn.fhir.context.FhirContext;
+import org.example.fhirplay.mapper.EnitiyToFhirResourceMapper;
 import org.example.fhirplay.mapper.FhirResourceToEntityMapper;
 import org.example.fhirplay.model.MedicationRequestEntity;
 import org.example.fhirplay.repo.MedicationRequestRepository;
@@ -18,17 +19,19 @@ public class MedicationRequestService {
 
     private final FhirContext fhirContext;
     private final MedicationRequestRepository medicationRequestRepository;
-    private final FhirResourceToEntityMapper mapper;
+    private final FhirResourceToEntityMapper toEntityMapper;
+    private final EnitiyToFhirResourceMapper toFhirResourceMapper;
 
     @Autowired
     public MedicationRequestService(MedicationRequestRepository medicationRequestRepository,
-                                    FhirResourceToEntityMapper mapper) {
+                                    FhirResourceToEntityMapper toEntityMapper, EnitiyToFhirResourceMapper toFhirResourceMapper) {
+        this.toFhirResourceMapper = toFhirResourceMapper;
         this.fhirContext = FhirContext.forR4();
         this.medicationRequestRepository = medicationRequestRepository;
-        this.mapper = mapper;
+        this.toEntityMapper = toEntityMapper;
     }
 
-    public String getAllMedicationRequestsAsFHIR() {
+    public Bundle getAllMedicationRequestsAsFHIR() {
         List<MedicationRequestEntity> medRequestEntities = medicationRequestRepository.findAll();
 
         // Create a FHIR Bundle
@@ -37,33 +40,36 @@ public class MedicationRequestService {
 
         //Add medication requests to bundle
         for (MedicationRequestEntity medRequestEntity : medRequestEntities) {
-            MedicationRequest medicationRequest = fhirContext.newJsonParser().parseResource(MedicationRequest.class, medRequestEntity.getFhirJson());
+            MedicationRequest medicationRequest = toFhirResourceMapper.toFhirMedicationRequest(medRequestEntity);
             bundle.addEntry().setResource(medicationRequest);
         }
 
         // Serialize the Bundle to JSON
-        return fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
+        return bundle;
     }
 
-    public MedicationRequestEntity findMedRequestByFhirId(String fhirId) {
-        Optional<MedicationRequestEntity> medicationRequest = medicationRequestRepository.findByFhirId(fhirId);
-        return medicationRequest.orElseThrow(() -> new NoSuchElementException("No such medication request with FhirId of " + fhirId + " found."));
+    public MedicationRequest findMedRequestByFhirId(String fhirId) {
+        Optional<MedicationRequestEntity> entityOptional = medicationRequestRepository.findByFhirId(fhirId);
+        MedicationRequestEntity entity = entityOptional.orElseThrow(() -> new NoSuchElementException("No such medication request with FhirId of " + fhirId + " found."));
+        return toFhirResourceMapper.toFhirMedicationRequest(entity);
     }
 
-    public String saveMedRequest(String fhirJson) {
+    public MedicationRequest saveMedRequest(String fhirJson) {
         MedicationRequest medicationRequest = fhirContext.newJsonParser().parseResource(MedicationRequest.class, fhirJson);
-        MedicationRequestEntity entity = mapper.toMedRequestEntity(medicationRequest);
+        MedicationRequestEntity entity = toEntityMapper.toMedRequestEntity(medicationRequest);
         medicationRequestRepository.save(entity);
-        return entity.getFhirJson();
+
+        return toFhirResourceMapper.toFhirMedicationRequest(entity);
     }
 
     @Transactional
-    public MedicationRequestEntity updateMedRequest(String fhirJson) {
+    public MedicationRequest updateMedRequest(String fhirJson) {
         MedicationRequest updatedRequest = fhirContext.newJsonParser().parseResource(MedicationRequest.class, fhirJson);
         Optional<MedicationRequestEntity> existingRequestOp = medicationRequestRepository.findByFhirId(updatedRequest.getIdPart());
         MedicationRequestEntity existingRequest = existingRequestOp.orElseThrow(() -> new NoSuchElementException("No such medication request with FhirId of " + updatedRequest.getIdPart() + " found."));
 
-        return mapper.setMedicationRequestFields(updatedRequest, existingRequest);
+        MedicationRequestEntity entity = toEntityMapper.setMedicationRequestFields(updatedRequest, existingRequest);
+        return toFhirResourceMapper.toFhirMedicationRequest(entity);
     }
 
     @Transactional

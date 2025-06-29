@@ -46,8 +46,5 @@ public class MedicationRequestEntity {
 
     @Column(name = "authored_on")
     private String authoredOn;
-
-    @Column(name = "fhir_json", columnDefinition = "TEXT", nullable = false)
-    private String fhirJson;
 }
 

@@ -65,7 +65,9 @@ public class PatientFHIRBundleService {
         // Fetch MedicationRequests for the patient
         List<MedicationRequestEntity> medRequests = medRequestRepository.findMedicationRequestEntitiesByPatient_FhirId(patientFhirId);
         for (MedicationRequestEntity medReqEntity : medRequests) {
-            MedicationRequest fhirMedRequest = fhirContext.newJsonParser().parseResource(MedicationRequest.class, medReqEntity.getFhirJson());
+            MedicationRequest medicationRequest = toFhirResourceMapper.toFhirMedicationRequest(medReqEntity);
+            String requestJson = fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(medicationRequest);
+            MedicationRequest fhirMedRequest = fhirContext.newJsonParser().parseResource(MedicationRequest.class, requestJson);
             bundle.addEntry().setResource(fhirMedRequest);
         }
 

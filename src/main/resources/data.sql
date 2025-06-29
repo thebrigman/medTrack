@@ -226,8 +226,7 @@ INSERT INTO medication_request (
     intent,
     dosage_instruction,
     priority,
-    authored_on,
-    fhir_json
+    authored_on
 ) VALUES
 -- Request 1: Ibuprofen for John Doe
 (
@@ -239,8 +238,7 @@ INSERT INTO medication_request (
     'order',
     'Take 1 tablet every 6 hours as needed for pain',
     'routine',
-    '2025-03-01',
-    '{"resourceType": "MedicationRequest", "id": "medreq1", "status": "active", "intent": "order", "medicationReference": {"reference": "Medication/med1"}, "subject": {"reference": "Patient/pat1"}, "authoredOn": "2025-03-01", "dosageInstruction": [{"text": "Take 1 tablet every 6 hours as needed for pain"}]}'
+    '2025-03-01'
 ),
 
 -- Request 2: Amoxicillin for Jane Smith
@@ -253,8 +251,7 @@ INSERT INTO medication_request (
     'order',
     'Take 1 capsule three times daily for 7 days',
     'urgent',
-    '2025-03-02',
-    '{"resourceType": "MedicationRequest", "id": "medreq2", "status": "active", "intent": "order", "medicationReference": {"reference": "Medication/med2"}, "subject": {"reference": "Patient/pat2"}, "authoredOn": "2025-03-02", "dosageInstruction": [{"text": "Take 1 capsule three times daily for 7 days"}]}'
+    '2025-03-02'
 ),
 
 -- Request 3: Acetaminophen for Alex Patel
@@ -267,8 +264,7 @@ INSERT INTO medication_request (
     'order',
     'Take 2 tablets every 4-6 hours as needed for fever',
     'routine',
-    '2025-03-03',
-    '{"resourceType": "MedicationRequest", "id": "medreq3", "status": "completed", "intent": "order", "medicationReference": {"reference": "Medication/med3"}, "subject": {"reference": "Patient/pat3"}, "authoredOn": "2025-03-03", "dosageInstruction": [{"text": "Take 2 tablets every 4-6 hours as needed for fever"}]}'
+    '2025-03-03'
 ),
 
 -- Request 4: Albuterol for Maria Gonzalez
@@ -281,8 +277,7 @@ INSERT INTO medication_request (
     'order',
     'Inhale 2 puffs every 4-6 hours as needed for wheezing',
     'stat',
-    '2025-03-04',
-    '{"resourceType": "MedicationRequest", "id": "medreq4", "status": "active", "intent": "order", "medicationReference": {"reference": "Medication/med4"}, "subject": {"reference": "Patient/pat4"}, "authoredOn": "2025-03-04", "dosageInstruction": [{"text": "Inhale 2 puffs every 4-6 hours as needed for wheezing"}]}'
+    '2025-03-04'
 ),
 
 -- Request 5: Lisinopril for Liam Chen
@@ -295,6 +290,5 @@ INSERT INTO medication_request (
     'order',
     'Take 1 tablet daily in the morning',
     'routine',
-    '2025-03-05',
-    '{"resourceType": "MedicationRequest", "id": "medreq5", "status": "active", "intent": "order", "medicationReference": {"reference": "Medication/med5"}, "subject": {"reference": "Patient/pat5"}, "authoredOn": "2025-03-05", "dosageInstruction": [{"text": "Take 1 tablet daily in the morning"}]}'
+    '2025-03-05'
 );

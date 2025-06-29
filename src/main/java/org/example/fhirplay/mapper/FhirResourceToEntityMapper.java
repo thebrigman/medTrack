@@ -296,9 +296,6 @@ public class FhirResourceToEntityMapper {
             entity.setDosageInstruction(fhirRequest.getDosageInstructionFirstRep().getText());
         }
 
-        // Store Full FHIR JSON
-        entity.setFhirJson(fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(fhirRequest));
-
         return entity;
     }
 

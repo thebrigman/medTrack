@@ -1,9 +1,15 @@
 package org.example.fhirplay.mapper;
 
+import org.example.fhirplay.model.MedicationEntity;
+import org.example.fhirplay.model.MedicationRequestEntity;
 import org.example.fhirplay.model.PatientEntity;
 import org.example.fhirplay.model.PractitionerEntity;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 @Component
 public class EnitiyToFhirResourceMapper {
@@ -92,5 +98,64 @@ public class EnitiyToFhirResourceMapper {
         }
 
         return p;
+    }
+
+    public MedicationRequest toFhirMedicationRequest(MedicationRequestEntity e) {
+
+        MedicationRequest r = new MedicationRequest();
+
+        // Logical ID
+        r.setId(e.getFhirId());
+
+        // Subject (Patient)
+        r.setSubject(toReference(e.getPatient(), "Patient"));
+
+        // Requester (Practitioner)
+        r.setRequester(toReference(e.getPractitioner(), "Practitioner"));
+
+        // Medication  (by Reference)
+        r.setMedication(toReference(e.getMedication(), "Medication"));
+
+        // Status
+        if (e.getStatus() != null) {
+            r.setStatus(MedicationRequest.MedicationRequestStatus.fromCode(e.getStatus().toLowerCase()));
+        }
+
+        // Intent
+        if (e.getIntent() != null) {
+            r.setIntent(MedicationRequest.MedicationRequestIntent.fromCode(e.getIntent().toLowerCase()));
+        }
+
+        // Priority
+        if (e.getPriority() != null) {
+            r.setPriority(MedicationRequest.MedicationRequestPriority.fromCode(e.getPriority().toLowerCase()));
+        }
+
+        if (e.getAuthoredOn() != null) {
+            LocalDate date = LocalDate.parse(e.getAuthoredOn(), DateTimeFormatter.ISO_DATE);
+            Date authoredDate = java.sql.Date.valueOf(date); // Convert LocalDate → java.util.Date
+            r.setAuthoredOn(authoredDate); // This works if r.setAuthoredOn() wants a java.util.Date
+        }
+
+        // DosageInstruction (store free-text in an Annotation)
+        if (e.getDosageInstruction() != null) {
+            Dosage dosage = new Dosage();
+            dosage.setText(e.getDosageInstruction());
+            r.addDosageInstruction(dosage);
+        }
+
+        return r;
+    }
+    private Reference toReference(Object entity, String resourceType) {
+        if (entity == null) return null;
+
+        String fhirId = switch (resourceType) {
+            case "Patient"      -> ((PatientEntity)      entity).getFhirId();
+            case "Practitioner" -> ((PractitionerEntity) entity).getFhirId();
+            case "Medication"   -> ((MedicationEntity)   entity).getFhirId();
+            default -> throw new IllegalArgumentException("Unknown type " + resourceType);
+        };
+
+        return new Reference(resourceType + "/" + fhirId);
     }
 }
