@@ -30,6 +30,9 @@
         <java.version>17</java.version>
         <flyway.version>9.22.3</flyway.version>
         <hapi-fhir.version>8.0.0</hapi-fhir.version>
+        <!-- One Lombok version for the dependency and the annotation processor.
+             Lombok must be at least as new as the JDK that runs the compiler. -->
+        <lombok.version>1.18.40</lombok.version>
     </properties>
     <dependencies>
         <dependency>
@@ -48,7 +51,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.36</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -103,14 +106,10 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.32</version>
+                            <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
