@@ -119,11 +119,3 @@ src/main/resources/
 ```
 
 Resources are stored as plain columns, not FHIR JSON, and the two mapper classes convert between them. Fields without a column (for example `note`, or extra performers) are dropped when a resource is saved.
-
-## Known limitations
-
-- **Errors:** most failures, such as an unknown id or a missing reference, return HTTP 500 rather than 404 or 400.
-- **Deletes:** deleting a patient also deletes their requests and administrations, and deleting a practitioner also deletes their administrations. Deleting a practitioner or medication that a request still references fails.
-- **Authored dates:** `MedicationRequest.authoredOn` must be a plain date (`2025-03-01`). A date with a time saves, but reading that request back fails.
-- **Request link:** the link from an administration to its request (`MedicationAdministration.request`) isn't stored.
-- **Security:** there's no authentication.
