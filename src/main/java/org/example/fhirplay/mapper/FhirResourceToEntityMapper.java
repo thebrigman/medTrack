@@ -1,6 +1,5 @@
 package org.example.fhirplay.mapper;
 
-import ca.uhn.fhir.context.FhirContext;
 import org.example.fhirplay.model.*;
 import org.example.fhirplay.repo.MedicationRepository;
 import org.example.fhirplay.repo.PatientRepository;
@@ -14,7 +13,6 @@ import java.util.List;
 @Component
 public class FhirResourceToEntityMapper {
 
-    private final FhirContext fhirContext;
     private final MedicationRepository medicationRepository;
     private final PatientRepository patientRepository;
     private final PractitionerRepository practitionerRepository;
@@ -23,7 +21,6 @@ public class FhirResourceToEntityMapper {
     public FhirResourceToEntityMapper(MedicationRepository medicationRepository,
                                       PatientRepository patientRepository,
                                       PractitionerRepository practitionerRepository) {
-        this.fhirContext = FhirContext.forR4();
         this.medicationRepository = medicationRepository;
         this.patientRepository = patientRepository;
         this.practitionerRepository = practitionerRepository;
@@ -169,6 +166,11 @@ public class FhirResourceToEntityMapper {
     }
 
     public MedicationEntity setMedicationFields(Medication fhirMedication, MedicationEntity medEntity) {
+
+        if (fhirMedication.getCode().getText() != null) {
+            medEntity.setMedicationName(fhirMedication.getCode().getText());
+        }
+
         if (fhirMedication.hasForm()) {
             medEntity.setForm(fhirMedication.getForm().getCodingFirstRep().getDisplay());
         }
@@ -182,8 +184,6 @@ public class FhirResourceToEntityMapper {
                 medEntity.setStrengthUnit(ingredient.getStrength().getNumerator().getUnit());
             }
         }
-
-        medEntity.setFhirJson(fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(fhirMedication));
 
         return medEntity;
     }
@@ -203,6 +203,14 @@ public class FhirResourceToEntityMapper {
             PatientEntity patient = patientRepository.findByFhirId(patientFhirId)
                     .orElseThrow(() -> new IllegalArgumentException("Patient with FHIR ID '" + patientFhirId + "' not found"));
             entity.setPatient(patient);
+        }
+
+        //Map practitioner (performer.actor)
+        if (fhirAdmin.hasPerformer() && fhirAdmin.getPerformerFirstRep().getActor().hasReference()) {
+            String practitionerFhirId = fhirAdmin.getPerformerFirstRep().getActor().getReference().replace("Practitioner/", ""); // "prac1"
+            PractitionerEntity practitioner = practitionerRepository.findByFhirId(practitionerFhirId)
+                    .orElseThrow(() -> new IllegalArgumentException("Practitioner with FHIR ID '" + practitionerFhirId + "' not found"));
+            entity.setPractitioner(practitioner);
         }
 
         //Map status
@@ -230,8 +238,6 @@ public class FhirResourceToEntityMapper {
             entity.setMedication(medication); // Sets null if not found
         }
 
-        //Map fhirJson
-        entity.setFhirJson(fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(fhirAdmin));
         return entity;
     }
 

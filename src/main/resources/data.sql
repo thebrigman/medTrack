@@ -159,8 +159,7 @@ INSERT INTO medication (
     form,
     strength_value,
     strength_unit,
-    fhir_id,
-    fhir_json
+    fhir_id
 ) VALUES
 -- Medication 1: Ibuprofen
 (
@@ -169,8 +168,7 @@ INSERT INTO medication (
     'tablet',
     200.0,
     'mg',
-    'med1',
-    '{"resourceType": "Medication", "id": "med1", "code": {"text": "Ibuprofen"}, "form": {"text": "tablet"}, "ingredient": [{"item": {"strength": {"value": 200, "unit": "mg"}}}]}'
+    'med1'
 ),
 
 -- Medication 2: Amoxicillin
@@ -180,8 +178,7 @@ INSERT INTO medication (
     'capsule',
     500.0,
     'mg',
-    'med2',
-    '{"resourceType": "Medication", "id": "med2", "code": {"text": "Amoxicillin"}, "form": {"text": "capsule"}, "ingredient": [{"item": {"strength": {"value": 500, "unit": "mg"}}}]}'
+    'med2'
 ),
 
 -- Medication 3: Acetaminophen
@@ -191,8 +188,7 @@ INSERT INTO medication (
     'tablet',
     325.0,
     'mg',
-    'med3',
-    '{"resourceType": "Medication", "id": "med3", "code": {"text": "Acetaminophen"}, "form": {"text": "tablet"}, "ingredient": [{"item": {"strength": {"value": 325, "unit": "mg"}}}]}'
+    'med3'
 ),
 
 -- Medication 4: Albuterol
@@ -202,8 +198,7 @@ INSERT INTO medication (
     'inhaler',
     90.0,
     'mcg',
-    'med4',
-    '{"resourceType": "Medication", "id": "med4", "code": {"text": "Albuterol"}, "form": {"text": "inhaler"}, "ingredient": [{"item": {"strength": {"value": 90, "unit": "mcg"}}}]}'
+    'med4'
 ),
 
 -- Medication 5: Lisinopril
@@ -213,8 +208,7 @@ INSERT INTO medication (
     'tablet',
     10.0,
     'mg',
-    'med5',
-    '{"resourceType": "Medication", "id": "med5", "code": {"text": "Lisinopril"}, "form": {"text": "tablet"}, "ingredient": [{"item": {"strength": {"value": 10, "unit": "mg"}}}]}'
+    'med5'
 );
 
 INSERT INTO medication_request (

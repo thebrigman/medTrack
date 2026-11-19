@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{fragments/layout :: head('Active requests')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('requests')}"></header>
+
+<main>
+    <div class="page-head">
+        <div>
+            <h1>Active medication requests</h1>
+            <p class="muted">Orders that are currently active. Choose one to record a dose.</p>
+        </div>
+        <a class="button" th:href="@{/ui/requests/new}">New request</a>
+    </div>
+
+    <div class="notice notice-success" th:if="${param.created != null}">
+        Request <code th:text="${param.created}"></code> created.
+    </div>
+
+    <div class="empty" th:if="${#lists.isEmpty(requests)}">
+        No active medication requests. <a th:href="@{/ui/requests/new}">Create one.</a>
+    </div>
+
+    <div class="table-wrap" th:unless="${#lists.isEmpty(requests)}">
+        <table>
+            <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Medication</th>
+                <th>Instructions</th>
+                <th>Priority</th>
+                <th>Ordered</th>
+                <th>Prescriber</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${requests}" th:classappend="${param.created != null and #strings.equals(param.created[0], r.fhirId)} ? 'highlight'">
+                <td><span th:replace="~{fragments/layout :: person(${r.patient})}"></span></td>
+                <td><span th:replace="~{fragments/layout :: medication(${r.medication})}"></span></td>
+                <td th:text="${r.dosageInstruction} ?: '—'"></td>
+                <td>
+                    <span class="badge" th:classappend="${r.priority == 'stat' or r.priority == 'asap'} ? 'badge-urgent'"
+                          th:text="${r.priority} ?: 'routine'"></span>
+                </td>
+                <td class="nowrap" th:text="${r.authoredOn} ?: '—'"></td>
+                <td><span th:replace="~{fragments/layout :: person(${r.practitioner})}"></span></td>
+                <td class="actions">
+                    <a class="button" th:href="@{/ui/requests/{id}/log(id=${r.fhirId})}">Log dose</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

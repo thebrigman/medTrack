@@ -1,7 +1,7 @@
 package org.example.fhirplay.service;
 
 import ca.uhn.fhir.context.FhirContext;
-import org.example.fhirplay.mapper.EnitiyToFhirResourceMapper;
+import org.example.fhirplay.mapper.EntityToFhirResourceMapper;
 import org.example.fhirplay.model.MedicationAdministrationEntity;
 import org.example.fhirplay.model.MedicationEntity;
 import org.example.fhirplay.model.MedicationRequestEntity;
@@ -25,22 +25,23 @@ public class PatientFHIRBundleService {
     private final MedicationAdministrationRepository medAdminRepository;
     private final MedicationRequestRepository medRequestRepository;
     private final MedicationRepository medicationRepository;
-    private final EnitiyToFhirResourceMapper toFhirResourceMapper;
+    private final EntityToFhirResourceMapper toFhirResourceMapper;
+    private final FhirContext fhirContext;
 
     @Autowired
     public PatientFHIRBundleService(
             PatientRepository patientRepository,
             MedicationAdministrationRepository medAdminRepository,
             MedicationRequestRepository medRequestRepository,
-            MedicationRepository medicationRepository, EnitiyToFhirResourceMapper toFhirResourceMapper) {
+            MedicationRepository medicationRepository, EntityToFhirResourceMapper toFhirResourceMapper,
+            FhirContext fhirContext) {
         this.patientRepository = patientRepository;
         this.medAdminRepository = medAdminRepository;
         this.medRequestRepository = medRequestRepository;
         this.medicationRepository = medicationRepository;
         this.toFhirResourceMapper = toFhirResourceMapper;
+        this.fhirContext = fhirContext;
     }
-
-    private static final FhirContext fhirContext = FhirContext.forR4();
 
     public String getPatientBundle(String patientFhirId) {
         Bundle bundle = new Bundle();
@@ -58,7 +59,7 @@ public class PatientFHIRBundleService {
         List<MedicationAdministrationEntity> medAdmins = medAdminRepository.findMedicationAdministrationEntitiesByPatient_FhirId(patientFhirId);
 
         for (MedicationAdministrationEntity medAdminEntity : medAdmins) {
-            MedicationAdministration fhirMedAdmin = fhirContext.newJsonParser().parseResource(MedicationAdministration.class, medAdminEntity.getFhirJson());
+            MedicationAdministration fhirMedAdmin = toFhirResourceMapper.toFhirMedicationAdministration(medAdminEntity);
             bundle.addEntry().setResource(fhirMedAdmin);
         }
 
@@ -79,7 +80,7 @@ public class PatientFHIRBundleService {
         for (String medFhirId : medicationFhirIds) {
             MedicationEntity medicationEntity = medicationRepository.findByFhirId(medFhirId)
                     .orElseThrow(() -> new IllegalArgumentException("Medication not found"));
-            Medication fhirMedication = fhirContext.newJsonParser().parseResource(Medication.class, medicationEntity.getFhirJson());
+            Medication fhirMedication = toFhirResourceMapper.toFhirMedication(medicationEntity);
             bundle.addEntry().setResource(fhirMedication);
         }
 

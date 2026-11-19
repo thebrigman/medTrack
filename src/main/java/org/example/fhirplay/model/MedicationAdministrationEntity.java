@@ -24,6 +24,10 @@ public class MedicationAdministrationEntity {
     private PatientEntity patient;
 
     @ManyToOne
+    @JoinColumn(name = "practitioner_id", nullable = false)
+    private PractitionerEntity practitioner;
+
+    @ManyToOne
     @JoinColumn(name = "medication_id", nullable = false)
     private MedicationEntity medication;
 
@@ -41,8 +45,5 @@ public class MedicationAdministrationEntity {
 
     @Column(name = "dosage_route")
     private String dosageRoute;
-
-    @Column(name = "fhir_json", columnDefinition = "TEXT", nullable = false)
-    private String fhirJson;
 }
 

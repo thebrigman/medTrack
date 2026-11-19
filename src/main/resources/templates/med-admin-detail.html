@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{fragments/layout :: head('Administration')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('admins')}"></header>
+
+<main class="narrow">
+    <div class="notice notice-success" th:if="${param.saved != null}">Administration recorded.</div>
+    <h1>Medication administration</h1>
+
+    <div class="card">
+        <dl class="details">
+            <dt>Patient</dt>
+            <dd><span th:replace="~{fragments/layout :: person(${admin.patient})}"></span></dd>
+
+            <dt>Medication</dt>
+            <dd><span th:replace="~{fragments/layout :: medication(${admin.medication})}"></span></dd>
+
+            <dt>Dose</dt>
+            <dd th:text="${admin.dosageQuantity != null} ? ${@fmt.num(admin.dosageQuantity)} + ' ' + ${admin.dosageUnit} : '—'"></dd>
+
+            <dt>Route</dt>
+            <dd th:text="${admin.dosageRoute} ?: '—'"></dd>
+
+            <dt>Given</dt>
+            <dd><span class="nowrap" th:text="${@fmt.time(admin.effectiveDateTime)}"></span></dd>
+
+            <dt>Given by</dt>
+            <dd><span th:replace="~{fragments/layout :: person(${admin.practitioner})}"></span></dd>
+
+            <dt>Status</dt>
+            <dd><span class="badge" th:text="${admin.status}"></span></dd>
+
+            <dt>FHIR id</dt>
+            <dd>
+                <code th:text="${admin.fhirId}"></code>
+                <a class="small" th:href="@{/medication-administration/{id}(id=${admin.fhirId})}">view JSON</a>
+            </dd>
+        </dl>
+    </div>
+
+    <p class="links">
+        <a class="button" th:href="@{/ui/requests}">Back to active requests</a>
+        <a th:href="@{/ui/administrations}">All administrations</a>
+    </p>
+</main>
+</body>
+</html>

@@ -3,6 +3,8 @@ package org.example.fhirplay.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,6 +20,9 @@ public class PractitionerEntity {
 
     @Column(name = "fhir_id", unique = true, nullable = false)
     private String fhirId;
+
+    @OneToMany(mappedBy = "practitioner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MedicationAdministrationEntity> medicationAdministrations;
 
     @Column(name = "given_name")
     private String givenName;

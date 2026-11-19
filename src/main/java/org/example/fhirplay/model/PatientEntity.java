@@ -24,6 +24,9 @@ public class PatientEntity {
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MedicationAdministrationEntity> medicationAdministrations;
 
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MedicationRequestEntity> medicationRequests;
+
     private String resourceType;
 
     @Column(name = "given_name")

@@ -1,6 +1,7 @@
 package org.example.fhirplay.service;
 
 import ca.uhn.fhir.context.FhirContext;
+import org.example.fhirplay.mapper.EntityToFhirResourceMapper;
 import org.example.fhirplay.mapper.FhirResourceToEntityMapper;
 import org.example.fhirplay.model.MedicationAdministrationEntity;
 import org.example.fhirplay.repo.MedicationAdministrationRepository;
@@ -18,21 +19,29 @@ public class MedicationAdministrationService {
 
     private final FhirContext fhirContext;
     private final MedicationAdministrationRepository medicationAdministrationRepository;
-    private final FhirResourceToEntityMapper mapper;
+    private final FhirResourceToEntityMapper toEntityMapper;
+    private final EntityToFhirResourceMapper toFhirResourceMapper;
 
     @Autowired
     public MedicationAdministrationService(MedicationAdministrationRepository medicationAdministrationRepository,
-                                           FhirResourceToEntityMapper mapper) {
-        this.fhirContext = FhirContext.forR4();
+                                           FhirResourceToEntityMapper toEntityMapper, EntityToFhirResourceMapper toFhirResourceMapper, FhirContext fhirContext) {
+        this.fhirContext = fhirContext;
         this.medicationAdministrationRepository = medicationAdministrationRepository;
-        this.mapper = mapper;
+        this.toEntityMapper = toEntityMapper;
+        this.toFhirResourceMapper = toFhirResourceMapper;
     }
 
-    public String saveMedicationAdmin(String fhirJson) {
+    public MedicationAdministration saveMedicationAdmin(String fhirJson) {
         MedicationAdministration medicationAdministration = fhirContext.newJsonParser().parseResource(MedicationAdministration.class, fhirJson);
-        MedicationAdministrationEntity entity = mapper.toMedicationAdminEntity(medicationAdministration);
+        return saveMedicationAdmin(medicationAdministration);
+    }
+
+    // Used by the UI, which builds the FHIR resource directly instead of parsing JSON
+    @Transactional
+    public MedicationAdministration saveMedicationAdmin(MedicationAdministration medicationAdministration) {
+        MedicationAdministrationEntity entity = toEntityMapper.toMedicationAdminEntity(medicationAdministration);
         medicationAdministrationRepository.save(entity);
-        return entity.getFhirJson();
+        return toFhirResourceMapper.toFhirMedicationAdministration(entity);
     }
 
     public String getAllMedicationAdministrationsAsFHIR() {
@@ -44,7 +53,7 @@ public class MedicationAdministrationService {
 
         // Add each MedicationAdministration to the Bundle
         for (MedicationAdministrationEntity entity : medAdminEntities) {
-            MedicationAdministration medAdmin = fhirContext.newJsonParser().parseResource(MedicationAdministration.class, entity.getFhirJson());
+            MedicationAdministration medAdmin = toFhirResourceMapper.toFhirMedicationAdministration(entity);
             bundle.addEntry().setResource(medAdmin);
         }
 
@@ -52,9 +61,10 @@ public class MedicationAdministrationService {
         return fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
     }
 
-    public String getMedicationAdminByFhirId(String fhirId) {
-        Optional<MedicationAdministrationEntity> entity = medicationAdministrationRepository.findByFhirId(fhirId);
-        return entity.orElseThrow(() -> new NoSuchElementException("No such Medication Administration with Id of: " + fhirId)).getFhirJson();
+    public MedicationAdministration getMedicationAdminByFhirId(String fhirId) {
+        Optional<MedicationAdministrationEntity> entityOptional = medicationAdministrationRepository.findByFhirId(fhirId);
+        MedicationAdministrationEntity entity = entityOptional.orElseThrow(() -> new NoSuchElementException("No such Medication Administration with Id of: " + fhirId));
+        return toFhirResourceMapper.toFhirMedicationAdministration(entity);
     }
 
     @Transactional
@@ -63,11 +73,14 @@ public class MedicationAdministrationService {
     }
 
     @Transactional
-    public String updateMedicationAdministration(String fhirJson) {
+    public MedicationAdministration updateMedicationAdministration(String fhirJson) {
         MedicationAdministration updatedMedAdmin = fhirContext.newJsonParser().parseResource(MedicationAdministration.class, fhirJson);
         Optional<MedicationAdministrationEntity>  existingMedAdminOptional = medicationAdministrationRepository.findByFhirId(updatedMedAdmin.getIdPart());
         MedicationAdministrationEntity existingEntity = existingMedAdminOptional.orElseThrow(() -> new NoSuchElementException("No such Medication Administration with Id of: " + updatedMedAdmin.getIdPart()));
 
-        return mapper.setMedicationAdministrationEntityFields(updatedMedAdmin, existingEntity).getFhirJson();
+        MedicationAdministrationEntity entity = toEntityMapper.setMedicationAdministrationEntityFields(updatedMedAdmin, existingEntity);
+        medicationAdministrationRepository.save(entity);
+
+        return toFhirResourceMapper.toFhirMedicationAdministration(existingEntity);
     }
 }

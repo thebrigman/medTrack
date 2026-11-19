@@ -1,7 +1,7 @@
 package org.example.fhirplay.service;
 
 import ca.uhn.fhir.context.FhirContext;
-import org.example.fhirplay.mapper.EnitiyToFhirResourceMapper;
+import org.example.fhirplay.mapper.EntityToFhirResourceMapper;
 import org.example.fhirplay.mapper.FhirResourceToEntityMapper;
 import org.example.fhirplay.model.PractitionerEntity;
 import org.example.fhirplay.repo.PractitionerRepository;
@@ -21,12 +21,12 @@ public class PractitionerService {
     private final FhirContext fhirContext;
     private final PractitionerRepository practitionerRepository;
     private final FhirResourceToEntityMapper toEntityMapper;
-    private final EnitiyToFhirResourceMapper toFhirResourceMapper;
+    private final EntityToFhirResourceMapper toFhirResourceMapper;
 
     @Autowired
-    public PractitionerService(PractitionerRepository practitionerRepository, FhirResourceToEntityMapper toEntityMapper, EnitiyToFhirResourceMapper toFhirResourceMapper) {
+    public PractitionerService(PractitionerRepository practitionerRepository, FhirResourceToEntityMapper toEntityMapper, EntityToFhirResourceMapper toFhirResourceMapper, FhirContext fhirContext) {
         this.toFhirResourceMapper = toFhirResourceMapper;
-        this.fhirContext = FhirContext.forR4();
+        this.fhirContext = fhirContext;
         this.practitionerRepository = practitionerRepository;
         this.toEntityMapper = toEntityMapper;
     }

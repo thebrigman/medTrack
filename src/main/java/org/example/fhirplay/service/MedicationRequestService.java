@@ -1,7 +1,7 @@
 package org.example.fhirplay.service;
 
 import ca.uhn.fhir.context.FhirContext;
-import org.example.fhirplay.mapper.EnitiyToFhirResourceMapper;
+import org.example.fhirplay.mapper.EntityToFhirResourceMapper;
 import org.example.fhirplay.mapper.FhirResourceToEntityMapper;
 import org.example.fhirplay.model.MedicationRequestEntity;
 import org.example.fhirplay.repo.MedicationRequestRepository;
@@ -20,13 +20,13 @@ public class MedicationRequestService {
     private final FhirContext fhirContext;
     private final MedicationRequestRepository medicationRequestRepository;
     private final FhirResourceToEntityMapper toEntityMapper;
-    private final EnitiyToFhirResourceMapper toFhirResourceMapper;
+    private final EntityToFhirResourceMapper toFhirResourceMapper;
 
     @Autowired
     public MedicationRequestService(MedicationRequestRepository medicationRequestRepository,
-                                    FhirResourceToEntityMapper toEntityMapper, EnitiyToFhirResourceMapper toFhirResourceMapper) {
+                                    FhirResourceToEntityMapper toEntityMapper, EntityToFhirResourceMapper toFhirResourceMapper, FhirContext fhirContext) {
         this.toFhirResourceMapper = toFhirResourceMapper;
-        this.fhirContext = FhirContext.forR4();
+        this.fhirContext = fhirContext;
         this.medicationRequestRepository = medicationRequestRepository;
         this.toEntityMapper = toEntityMapper;
     }
@@ -56,6 +56,12 @@ public class MedicationRequestService {
 
     public MedicationRequest saveMedRequest(String fhirJson) {
         MedicationRequest medicationRequest = fhirContext.newJsonParser().parseResource(MedicationRequest.class, fhirJson);
+        return saveMedRequest(medicationRequest);
+    }
+
+    // Used by the UI, which builds the FHIR resource directly instead of parsing JSON
+    @Transactional
+    public MedicationRequest saveMedRequest(MedicationRequest medicationRequest) {
         MedicationRequestEntity entity = toEntityMapper.toMedRequestEntity(medicationRequest);
         medicationRequestRepository.save(entity);
 

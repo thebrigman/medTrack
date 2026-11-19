@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- <head> contents shared by every page: th:insert="~{fragments/layout :: head('Page title')}" -->
+<th:block th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · medTrack'">medTrack</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</th:block>
+
+<!-- Top bar. Pass the active section: 'requests' or 'admins' -->
+<header class="topbar" th:fragment="nav(active)">
+    <a class="brand" th:href="@{/ui/requests}">medTrack</a>
+    <nav>
+        <a th:href="@{/ui/requests}" th:classappend="${active == 'requests'} ? 'active'">Active requests</a>
+        <a th:href="@{/ui/administrations}" th:classappend="${active == 'admins'} ? 'active'">Administrations</a>
+    </nav>
+</header>
+
+<!-- "Ibuprofen 200 mg" -->
+<span th:fragment="medication(med)"
+      th:text="${med == null} ? '—' : ${med.medicationName} + (${med.strengthValue != null} ? ' ' + ${@fmt.num(med.strengthValue)} + ' ' + ${med.strengthUnit} : '')">
+</span>
+
+<!-- "John Doe" -->
+<span th:fragment="person(p)"
+      th:text="${p == null} ? '—' : ${p.givenName} + ' ' + ${p.familyName}">
+</span>
+
+</body>
+</html>

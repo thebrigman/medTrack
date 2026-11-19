@@ -10,4 +10,7 @@ public interface MedicationRequestRepository extends JpaRepository<MedicationReq
     Optional<MedicationRequestEntity> findByFhirId(String fhirId);
     List<MedicationRequestEntity> findMedicationRequestEntitiesByPatient_FhirId(String PatientFhirId);
     void deleteMedicationRequestEntityByFhirId(String fhirId);
+
+    // UI: requests a nurse can act on (e.g. status "active"), newest first
+    List<MedicationRequestEntity> findByStatusOrderByAuthoredOnDesc(String status);
 }

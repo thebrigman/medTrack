@@ -1,6 +1,6 @@
 package org.example.fhirplay.service;
 
-import org.example.fhirplay.mapper.EnitiyToFhirResourceMapper;
+import org.example.fhirplay.mapper.EntityToFhirResourceMapper;
 import org.example.fhirplay.mapper.FhirResourceToEntityMapper;
 import org.example.fhirplay.model.PatientEntity;
 import org.hl7.fhir.r4.model.*;
@@ -21,12 +21,12 @@ public class PatientService {
     private final FhirContext fhirContext;
     private final FhirResourceToEntityMapper toEntityMapper;
     private final PatientRepository patientRepository;
-    private final EnitiyToFhirResourceMapper toFhirResourceMapper;
+    private final EntityToFhirResourceMapper toFhirResourceMapper;
 
     @Autowired
-    public PatientService(FhirResourceToEntityMapper toEntityMapper, PatientRepository patientRepository, EnitiyToFhirResourceMapper toFhirResourceMapper) {
+    public PatientService(FhirResourceToEntityMapper toEntityMapper, PatientRepository patientRepository, EntityToFhirResourceMapper toFhirResourceMapper, FhirContext fhirContext) {
         this.toFhirResourceMapper = toFhirResourceMapper;
-        this.fhirContext = FhirContext.forR4();
+        this.fhirContext = fhirContext;
         this.toEntityMapper = toEntityMapper;
         this.patientRepository = patientRepository;
     }

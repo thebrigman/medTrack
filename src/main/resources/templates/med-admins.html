@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{fragments/layout :: head('Administrations')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('admins')}"></header>
+
+<main>
+    <h1>Recent administrations</h1>
+    <p class="muted">The 50 most recent doses recorded, newest first.</p>
+
+    <div class="empty" th:if="${#lists.isEmpty(admins)}">
+        Nothing recorded yet. <a th:href="@{/ui/requests}">Log a dose from an active request.</a>
+    </div>
+
+    <div class="table-wrap" th:unless="${#lists.isEmpty(admins)}">
+        <table>
+            <thead>
+            <tr>
+                <th>Given</th>
+                <th>Patient</th>
+                <th>Medication</th>
+                <th>Dose</th>
+                <th>Route</th>
+                <th>Given by</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${admins}">
+                <td><span class="nowrap" th:text="${@fmt.time(a.effectiveDateTime)}"></span></td>
+                <td><span th:replace="~{fragments/layout :: person(${a.patient})}"></span></td>
+                <td><span th:replace="~{fragments/layout :: medication(${a.medication})}"></span></td>
+                <td class="nowrap" th:text="${a.dosageQuantity != null} ? ${@fmt.num(a.dosageQuantity)} + ' ' + ${a.dosageUnit} : '—'"></td>
+                <td th:text="${a.dosageRoute} ?: '—'"></td>
+                <td><span th:replace="~{fragments/layout :: person(${a.practitioner})}"></span></td>
+                <td class="actions"><a th:href="@{/ui/administrations/{id}(id=${a.fhirId})}">Details</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

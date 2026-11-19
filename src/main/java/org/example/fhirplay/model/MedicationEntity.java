@@ -34,6 +34,4 @@ public class MedicationEntity {
     @Column(name = "fhir_id", unique = true, nullable = false)
     private String fhirId;
 
-    @Column(name = "fhir_json", columnDefinition = "TEXT", nullable = false)
-    private String fhirJson;
 }

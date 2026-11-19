@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{fragments/layout :: head('New request')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('requests')}"></header>
+
+<main class="narrow">
+    <p class="crumbs"><a th:href="@{/ui/requests}">Active requests</a> / New request</p>
+    <h1>New medication request</h1>
+    <p class="muted">Creates an active order. It appears on the active requests list, ready to log doses against.</p>
+
+    <div class="notice notice-error" th:if="${error}" th:text="${error}" role="alert"></div>
+
+    <form class="card form" method="post" th:action="@{/ui/requests/new}" th:object="${form}">
+
+        <label class="field">
+            <span>Patient</span>
+            <select th:field="*{patientFhirId}" required>
+                <option value="">Choose…</option>
+                <option th:each="p : ${patients}" th:value="${p.fhirId}"
+                        th:text="${p.familyName} + ', ' + ${p.givenName} + (${p.birthDate != null} ? ' · born ' + ${p.birthDate} : '')"></option>
+            </select>
+        </label>
+
+        <label class="field">
+            <span>Medication</span>
+            <select th:field="*{medicationFhirId}" required>
+                <option value="">Choose…</option>
+                <option th:each="m : ${medications}" th:value="${m.fhirId}"
+                        th:text="${m.medicationName} + (${m.strengthValue != null} ? ' ' + ${@fmt.num(m.strengthValue)} + ' ' + ${m.strengthUnit} : '') + (${m.form != null} ? ' · ' + ${m.form} : '')"></option>
+            </select>
+        </label>
+
+        <label class="field">
+            <span>Dosage instructions</span>
+            <textarea th:field="*{dosageInstruction}" rows="3" required
+                      placeholder="e.g. Take 1 tablet every 6 hours as needed for pain"></textarea>
+        </label>
+
+        <div class="row">
+            <label class="field">
+                <span>Priority</span>
+                <select th:field="*{priority}" required>
+                    <option th:each="pr : ${priorities}" th:value="${pr.key}" th:text="${pr.value}"></option>
+                </select>
+            </label>
+            <label class="field">
+                <span>Order date</span>
+                <input type="date" th:field="*{authoredOn}" required>
+            </label>
+        </div>
+
+        <label class="field">
+            <span>Prescriber</span>
+            <select th:field="*{practitionerFhirId}" required>
+                <option value="">Choose…</option>
+                <option th:each="p : ${practitioners}" th:value="${p.fhirId}"
+                        th:text="${p.givenName} + ' ' + ${p.familyName} + (${p.qualification != null} ? ' (' + ${p.qualification} + ')' : '')"></option>
+            </select>
+        </label>
+
+        <div class="form-actions">
+            <button type="submit" class="button">Create request</button>
+            <a th:href="@{/ui/requests}">Cancel</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

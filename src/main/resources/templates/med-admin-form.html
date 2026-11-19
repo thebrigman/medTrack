@@ -1,40 +1,97 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Log Medication Administration</title>
-    <style>
-        form { max-width: 400px; margin: 20px; }
-        label { display: block; margin: 10px 0 5px; }
-        input, select { width: 100%; padding: 5px; }
-        button { margin-top: 10px; padding: 10px; }
-    </style>
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{fragments/layout :: head('Log dose')}"></head>
 <body>
-<h1>Log Medication Administration</h1>
-<form th:action="@{/med-admin/log}" th:object="${admin}" method="post">
-    <input type="hidden" th:field="*{request.id}" />
-    <input type="hidden" th:field="*{patient.id}" />
-    <input type="hidden" th:field="*{medicationId}" />
+<header th:replace="~{fragments/layout :: nav('requests')}"></header>
 
-    <label>Patient: <span th:text="${admin.patient.givenName + ' ' + admin.patient.familyName}"></span></label>
-    <label>Medication: <span th:text="${admin.medicationId}"></span></label> <!-- Replace with name if joined -->
-    <label>Dose Given:
-        <input type="number" th:field="*{doseQuantity}" step="0.1" required />
-    </label>
-    <label>Unit:
-        <input type="text" th:field="*{doseUnit}" required />
-    </label>
-    <label>Route:
-        <select th:field="*{route}">
-            <option value="oral">Oral</option>
-            <option value="intravenous">Intravenous</option>
-            <option value="intramuscular">Intramuscular</option>
-        </select>
-    </label>
-    <label>Performer ID (Nurse):
-        <input type="number" th:field="*{performerId}" />
-    </label>
-    <button type="submit">Log Administration</button>
-</form>
+<main class="narrow">
+    <p class="crumbs"><a th:href="@{/ui/requests}">Active requests</a> / Log dose</p>
+    <h1>Log a dose</h1>
+
+    <!-- What was ordered: fixed, comes from the MedicationRequest -->
+    <div class="card order">
+        <dl class="details">
+            <dt>Patient</dt>
+            <dd><strong><span th:replace="~{fragments/layout :: person(${request.patient})}"></span></strong></dd>
+
+            <dt>Medication</dt>
+            <dd><strong><span th:replace="~{fragments/layout :: medication(${request.medication})}"></span></strong></dd>
+
+            <dt>Instructions</dt>
+            <dd th:text="${request.dosageInstruction} ?: '—'"></dd>
+
+            <dt>Order</dt>
+            <dd>
+                <code th:text="${request.fhirId}"></code>
+                <span class="muted" th:text="'· ordered ' + (${request.authoredOn} ?: '—') + ' · ' + (${request.priority} ?: 'routine')"></span>
+            </dd>
+        </dl>
+    </div>
+
+    <div class="notice notice-error" th:if="${error}" th:text="${error}" role="alert"></div>
+
+    <!-- What was given -->
+    <form class="card form" method="post"
+          th:action="@{/ui/requests/{id}/log(id=${request.fhirId})}" th:object="${form}">
+
+        <div class="row">
+            <label class="field">
+                <span>Dose</span>
+                <input type="number" th:field="*{dosageQuantity}" step="any" min="0" required>
+            </label>
+            <label class="field">
+                <span>Unit</span>
+                <input type="text" th:field="*{dosageUnit}" placeholder="mg" required>
+            </label>
+        </div>
+
+        <label class="field">
+            <span>Route</span>
+            <select th:field="*{routeCode}" required>
+                <option th:each="r : ${routes}" th:value="${r.key}" th:text="${r.value}"></option>
+            </select>
+        </label>
+
+        <label class="field">
+            <span>Time given</span>
+            <input type="datetime-local" th:field="*{effectiveDateTime}" required>
+        </label>
+
+        <label class="field">
+            <span>Given by</span>
+            <select th:field="*{practitionerFhirId}" required>
+                <option value="">Choose…</option>
+                <option th:each="p : ${practitioners}" th:value="${p.fhirId}"
+                        th:text="${p.givenName} + ' ' + ${p.familyName} + (${p.qualification != null} ? ' (' + ${p.qualification} + ')' : '')"></option>
+            </select>
+        </label>
+
+        <div class="form-actions">
+            <button type="submit" class="button">Record administration</button>
+            <a th:href="@{/ui/requests}">Cancel</a>
+        </div>
+    </form>
+
+    <!-- Earlier doses of this medication for this patient, to help avoid a double dose -->
+    <section class="history">
+        <h2>Previous doses of this medication</h2>
+        <p class="muted" th:if="${#lists.isEmpty(history)}">None recorded for this patient.</p>
+        <div class="table-wrap" th:unless="${#lists.isEmpty(history)}">
+            <table>
+                <thead>
+                <tr><th>Given</th><th>Dose</th><th>Route</th><th>Given by</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="h : ${history}">
+                    <td><a class="nowrap" th:href="@{/ui/administrations/{id}(id=${h.fhirId})}" th:text="${@fmt.time(h.effectiveDateTime)}"></a></td>
+                    <td class="nowrap" th:text="${h.dosageQuantity != null} ? ${@fmt.num(h.dosageQuantity)} + ' ' + ${h.dosageUnit} : '—'"></td>
+                    <td th:text="${h.dosageRoute} ?: '—'"></td>
+                    <td><span th:replace="~{fragments/layout :: person(${h.practitioner})}"></span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
 </body>
 </html>
